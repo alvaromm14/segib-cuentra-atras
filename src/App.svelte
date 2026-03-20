@@ -82,7 +82,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 90%;
+      width: 100%;
       text-align: center;
       z-index: 10;
     }
@@ -106,9 +106,5 @@
     .contador-wrapper :global(.line2) {
       font-size: 1rem;
     }
-  }
-
-  :global(body) {
-    background: #f3f7fb;
   }
 </style>
