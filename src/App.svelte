@@ -12,9 +12,10 @@
 
     <div class="contador-wrapper">
       <Contador
-        target={new Date("2026-12-01T12:00:00")}
-        targetText="4 de diciembre, 12h00"
-        label="Informe 2025"
+        target={new Date("2026-12-03T12:00:00")}
+        targetTitle="Cuenta atrás para el lanzamiento"
+        targetDate="3 de diciembre · 12:00h"
+        label="Informe de Cooperación Sur-Sur y Triangular en Iberoamérica 2026"
       />
     </div>
   </div>
@@ -37,9 +38,9 @@
   .contador-wrapper {
     position: absolute;
     left: 40%;
+    right: 0;
     top: 50%;
-    transform: translate(0%, -50%);
-    width: 70%;
+    transform: translateY(-50%);
     text-align: left;
     pointer-events: none;
     z-index: 10;
@@ -53,28 +54,35 @@
   }
 
   @media (max-width: 600px) {
+    .chart-container {
+      height: 575px;
+      margin: 0 auto;
+      overflow: visible;
+    }
+
     .globe-layout {
-      min-height: 420px;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     .globe-layout :global(svg) {
+      position: relative;
+      top: auto;
+      left: auto;
+      transform: none;
+      height: 575px !important;
+      width: auto;
+      opacity: 0.6;
+    }
+
+    .contador-wrapper {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .contador-wrapper {
-      position: relative;
-      left: auto;
-      top: auto;
-      transform: none;
-      width: 100%;
+      width: 90%;
       text-align: center;
       z-index: 10;
     }
@@ -89,6 +97,14 @@
 
     .contador-wrapper :global(.unit) {
       align-items: center;
+    }
+
+    .contador-wrapper :global(.line1) {
+      font-size: 1.2rem;
+    }
+
+    .contador-wrapper :global(.line2) {
+      font-size: 1rem;
     }
   }
 

@@ -2,7 +2,8 @@
     import { onMount, onDestroy } from "svelte";
 
     export let target = null;
-    export let targetText = null;
+    export let targetTitle = null;
+    export let targetDate = null;
     export let label = null;
 
     function getTimeLeft() {
@@ -27,10 +28,6 @@
         return String(val).padStart(width, "0").split("");
     }
 
-    // For each unit×digit we store: { from, to, flipping }
-    // 'from' = digit shown in the static background + flap-top (old value)
-    // 'to'   = digit shown in the flap-bottom (new value, revealed by animation)
-    // These are only updated AFTER the animation finishes, keeping DOM stable.
     let slots = units.map((u) => {
         const ds = pad(getTimeLeft()[u.key], u.pad);
         return ds.map((d) => ({ from: d, to: d, flipping: false }));
@@ -44,13 +41,10 @@
 
             nextDigits.forEach((newD, di) => {
                 const slot = slots[ui][di];
-                if (newD === slot.from) return; // nothing changed
+                if (newD === slot.from) return;
 
-                // Freeze 'to' as the incoming digit and start animation.
-                // 'from' stays as-is so the static background keeps the old digit.
                 slots[ui][di] = { from: slot.from, to: newD, flipping: true };
 
-                // After animation completes, promote 'to' → 'from' and stop flip.
                 setTimeout(() => {
                     slots[ui][di] = { from: newD, to: newD, flipping: false };
                     slots = [...slots];
@@ -94,6 +88,7 @@
 
     $: cardWidth = cardHeight * 0.68;
     $: fontSize = cardHeight * 0.72;
+
     $: sublabelHeight = (scale) => Math.max(9, cardHeight * scale * 0.18) + 6;
 </script>
 
@@ -101,7 +96,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Lato:wght@600;700&family=Oswald:wght@600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@500;600;700&family=Oswald:wght@600&display=swap"
         rel="stylesheet"
     />
 </svelte:head>
@@ -114,79 +109,82 @@
     >
         <p class="countdown-label">{label}</p>
 
-        <div class="flip-clock">
-            {#each units as unit, ui}
-                <div class="unit">
-                    <div class="cards">
-                        {#each slots[ui] as slot, di}
-                            <div
-                                class="flip-card"
-                                class:flipping={slot.flipping}
-                                style="
-                                    width:{cardWidth * unit.scale}px;
-                                    height:{cardHeight * unit.scale}px;
-                                    --card-h:{cardHeight * unit.scale}px;
-                                    --font-size:{fontSize * unit.scale}px;
-                                "
-                            >
-                                <!-- Static top: shows new digit (revealed as flap-top folds away) -->
-                                <div class="static-top">
-                                    <div class="static-digit">{slot.to}</div>
-                                </div>
-                                <!-- Static bottom: shows old digit (hidden behind flap-bottom until it falls) -->
-                                <div class="static-bottom">
-                                    <div class="static-digit">{slot.from}</div>
-                                </div>
-
-                                <div class="divider"></div>
-
-                                <!-- Flap top: old digit, folds away -->
-                                <div class="flap flap-top">
-                                    <div class="static-digit">{slot.from}</div>
-                                </div>
-
-                                <!-- Flap bottom: NEW digit, falls in to reveal -->
-                                <div class="flap flap-bottom">
-                                    <div class="static-digit">{slot.to}</div>
-                                </div>
-                            </div>
-                        {/each}
-                    </div>
-
-                    <p
-                        class="sublabel"
-                        style="font-size:{Math.max(
-                            9,
-                            cardHeight * unit.scale * 0.18,
-                        )}px;"
-                    >
-                        {unit.sublabel}
-                    </p>
-                </div>
-
-                {#if ui < units.length - 1}
-                    <div
-                        class="separator"
-                        style="
-                            font-size:{cardHeight *
-                            units[ui + 1].scale *
-                            0.5}px;
-                            padding-bottom:{sublabelHeight(
-                            units[ui + 1].scale,
-                        )}px;
-                        "
-                    >
-                        :
-                    </div>
-                {/if}
-            {/each}
-        </div>
-
+        <h5 class="target-date">
+            <span class="line1">{targetTitle}</span>
+            <span class="line2">{targetDate}</span>
+        </h5>
         <hr class="target-divider" />
 
-        <h5 class="target-date">
-            {targetText}
-        </h5>
+        <div class="flip-clock">
+            {#each units as unit, ui}
+                <div class="unit-group">
+                    <div class="unit">
+                        <div class="cards">
+                            {#each slots[ui] as slot, di}
+                                <div
+                                    class="flip-card"
+                                    class:flipping={slot.flipping}
+                                    style="
+                                        width:{cardWidth * unit.scale}px;
+                                        height:{cardHeight * unit.scale}px;
+                                        --card-h:{cardHeight * unit.scale}px;
+                                        --font-size:{fontSize * unit.scale}px;
+                                    "
+                                >
+                                    <div class="static-top">
+                                        <div class="static-digit">
+                                            {slot.to}
+                                        </div>
+                                    </div>
+                                    <div class="static-bottom">
+                                        <div class="static-digit">
+                                            {slot.from}
+                                        </div>
+                                    </div>
+
+                                    <div class="divider"></div>
+
+                                    <div class="flap flap-top">
+                                        <div class="static-digit">
+                                            {slot.from}
+                                        </div>
+                                    </div>
+
+                                    <div class="flap flap-bottom">
+                                        <div class="static-digit">
+                                            {slot.to}
+                                        </div>
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+
+                        <p
+                            class="sublabel"
+                            style="font-size:{Math.max(
+                                9,
+                                cardHeight * unit.scale * 0.18,
+                            )}px;"
+                        >
+                            {unit.sublabel}
+                        </p>
+                    </div>
+
+                    {#if ui < units.length - 1}
+                        <div
+                            class="separator"
+                            style="
+                                font-size:{cardHeight *
+                                units[ui + 1].scale *
+                                0.5}px;
+                            "
+                        >
+                            :
+                        </div>
+                    {/if}
+                </div>
+            {/each}
+        </div>
     </div>
 {/if}
 
@@ -202,16 +200,22 @@
     .countdown-label {
         color: #212c55;
         font-weight: 700;
-        font-size: 2.5rem;
-        line-height: 1.1;
+        font-size: 1.5rem;
+        line-height: 1.2;
         margin: 0 0 0.2em 0;
         text-align: left;
     }
 
     .flip-clock {
         display: flex;
-        align-items: flex-end;
+        align-items: flex-start;
         gap: 8px;
+    }
+
+    .unit-group {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
     }
 
     .unit {
@@ -221,11 +225,6 @@
         gap: 6px;
     }
 
-    .cards {
-        display: flex;
-        gap: 3px;
-    }
-
     .sublabel {
         font-family: "Lato", sans-serif;
         font-weight: 600;
@@ -233,6 +232,21 @@
         letter-spacing: 0.08em;
         color: #888;
         margin: 0;
+        width: 100%;
+        text-align: left;
+    }
+
+    .cards {
+        display: flex;
+        gap: 3px;
+    }
+
+    .separator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 8px;
+        transform: translateY(50%);
     }
 
     .flip-card {
@@ -240,7 +254,6 @@
         perspective: 200px;
     }
 
-    /* Two static background halves */
     .static-top,
     .static-bottom {
         position: absolute;
@@ -265,7 +278,6 @@
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
     }
 
-    /* The digit label, clipped to its half */
     .static-top .static-digit,
     .static-bottom .static-digit {
         height: var(--card-h);
@@ -350,7 +362,6 @@
         top: calc(var(--card-h) * -0.5);
     }
 
-    /* Animations only trigger on .flipping cards */
     .flip-card.flipping .flap-top {
         opacity: 1;
         animation: flipTop 0.35s ease-in forwards;
@@ -389,7 +400,19 @@
 
     .target-date {
         color: #212c55;
-        font-weight: 400;
-        font-size: 1.375rem;
+        font-size: clamp(1rem, 2.5vw, 1.375rem);
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    .line1 {
+        font-weight: 500;
+    }
+
+    .line2 {
+        font-size: 0.9em;
+        opacity: 0.7;
     }
 </style>
