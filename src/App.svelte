@@ -5,13 +5,12 @@
 
   onMount(() => {
     function updateIframeHeight() {
-      const el = document.documentElement;
-      const rect = el.getBoundingClientRect();
-      const styles = window.getComputedStyle(el);
-      const margin =
-        parseFloat(styles.marginTop) + parseFloat(styles.marginBottom);
-      const height = Math.ceil(rect.height + margin);
-      window.parent.postMessage({ type: "resize-iframe", value: height }, "*");
+      const height = Math.ceil(document.body.scrollHeight);
+      const width = Math.ceil(document.body.scrollWidth);
+      window.parent.postMessage(
+        { type: "resize-iframe", value: height, width },
+        "*",
+      );
     }
 
     updateIframeHeight();
