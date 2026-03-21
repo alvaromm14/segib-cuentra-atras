@@ -1,5 +1,6 @@
 <script>
     import { onMount, onDestroy } from "svelte";
+    import { tick } from "svelte";
 
     export let target = null;
     export let targetTitle = null;
@@ -58,11 +59,10 @@
     let interval;
     let visible = false;
 
-    onMount(() => {
-        setTimeout(() => {
-            visible = true;
-            interval = setInterval(update, 1000);
-        }, 600);
+    onMount(async () => {
+        await tick();
+        visible = true;
+        interval = setInterval(update, 1000);
     });
 
     onDestroy(() => clearInterval(interval));
@@ -91,15 +91,6 @@
 
     $: sublabelHeight = (scale) => Math.max(9, cardHeight * scale * 0.18) + 6;
 </script>
-
-<svelte:head>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Lato:wght@500;600;700&family=Oswald:wght@600&display=swap"
-        rel="stylesheet"
-    />
-</svelte:head>
 
 {#if visible}
     <div
@@ -226,7 +217,6 @@
     }
 
     .sublabel {
-        font-family: "Lato", sans-serif;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
@@ -408,11 +398,12 @@
     }
 
     .line1 {
-        font-weight: 500;
+        font-size: 20px;
+        line-height: 26px;
     }
 
     .line2 {
-        font-size: 0.9em;
+        font-size: 0.8em;
         opacity: 0.7;
     }
 </style>

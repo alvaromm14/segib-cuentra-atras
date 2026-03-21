@@ -38,23 +38,34 @@
     }, 0);
 </script>
 
-<svg {width} {height}>
-    <Glow />
-    <circle
-        {cx}
-        cy={height / 2}
-        r={radius}
-        fill="#d2d5d5"
-        filter="url(#glow)"
-    />
-    {#each countries as country}
-        <path d={path(country)} fill="#e8ebeb" stroke="none" />
-    {/each}
-    <path d={path(borders)} fill="none" stroke="#e8ebeb" stroke-width="0.25" />
-</svg>
+<div class="globe-container" bind:clientWidth={width}>
+    <svg {width} {height}>
+        <Glow />
+        <circle
+            {cx}
+            cy={height / 2}
+            r={radius}
+            fill="#d2d5d5"
+            filter="url(#glow)"
+        />
+        {#each countries as country}
+            <path d={path(country)} fill="#e8ebeb" stroke="none" />
+        {/each}
+        <path
+            d={path(borders)}
+            fill="none"
+            stroke="#e8ebeb"
+            stroke-width="0.25"
+        />
+    </svg>
+</div>
 
 <style>
     svg {
         overflow: visible;
+    }
+
+    .globe-container {
+        max-width: 820px;
     }
 </style>

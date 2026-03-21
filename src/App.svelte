@@ -1,13 +1,40 @@
 <script>
   import Globo from "$components/Globo.svelte";
   import Contador from "$components/Contador.svelte";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    function updateIframeHeight() {
+      const el = document.documentElement;
+      const rect = el.getBoundingClientRect();
+      const styles = window.getComputedStyle(el);
+      const margin =
+        parseFloat(styles.marginTop) + parseFloat(styles.marginBottom);
+      const height = Math.ceil(rect.height + margin);
+      window.parent.postMessage({ type: "resize-iframe", value: height }, "*");
+    }
+
+    updateIframeHeight();
+
+    if (window.ResizeObserver) {
+      new ResizeObserver(() => updateIframeHeight()).observe(
+        document.documentElement,
+      );
+    } else {
+      window.addEventListener("resize", updateIframeHeight);
+    }
+
+    window.addEventListener("message", (event) => {
+      if (event.data.type === "request-resize") updateIframeHeight();
+    });
+  });
 
   let width = 0;
-  let height = 575;
+  $: height = width ? (width < 600 ? width : Math.round(width * 0.7)) : 575;
 </script>
 
 <div class="chart-container" bind:clientWidth={width}>
-  <div class="globe-layout">
+  <div class="globe-layout" style:height="{height}px">
     <Globo {width} {height} />
 
     <div class="contador-wrapper">
@@ -55,13 +82,11 @@
 
   @media (max-width: 600px) {
     .chart-container {
-      height: 575px;
       margin: 0 auto;
       overflow: visible;
     }
 
     .globe-layout {
-      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -72,8 +97,8 @@
       top: auto;
       left: auto;
       transform: none;
-      height: 575px !important;
-      width: auto;
+      width: 100%;
+      height: auto;
       opacity: 0.6;
     }
 
